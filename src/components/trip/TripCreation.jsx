@@ -75,7 +75,7 @@ const TripCreation = () => {
       const data = await response.json();
   
       if (data.features && data.features.length > 0) {
-        // Assuming the first result is the most relevant
+    
         const [longitude, latitude] = data.features[0].center;
   
         return { longitude, latitude };
