@@ -50,7 +50,6 @@ const Profile = () => {
         return;
       }
 
-      // Reauthenticate user before changing the password
       const credential = EmailAuthProvider.credential(user.email, currentPassword);
       await reauthenticateWithCredential(auth.currentUser, credential);
 
@@ -150,7 +149,6 @@ const Profile = () => {
           </button>
         </div>
 
-        {/* Confirmation Message */}
         {confirmation && <p className="text-green-500 mt-4">{confirmation}</p>}
         
       </div>

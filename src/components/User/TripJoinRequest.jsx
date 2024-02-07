@@ -3,8 +3,6 @@ import { collection, doc, getDocs, updateDoc, where, query } from 'firebase/fire
 import { db } from '../../firebase/firebase';
 import Loader from '../Loader';
 import { useSelector } from 'react-redux';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
 import FollowRequest from './FollowRequest';
 
 const TripJoinRequest = () => {

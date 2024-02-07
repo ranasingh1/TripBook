@@ -100,7 +100,6 @@ const SearchUserProfile = () => {
       if (!querySnapshot.empty) {
         const user = querySnapshot.docs[0].data().user;
 
-        // Check if followers array is defined before filtering
         const updatedFollowers = Array.isArray(user.followers) ? user.followers.filter((follower) => follower !== currentUser.id) : [];
 
         await updateDoc(doc(db, 'users', querySnapshot.docs[0].id), {

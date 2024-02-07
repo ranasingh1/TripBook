@@ -51,7 +51,7 @@ const handleAcceptRequest = async (requestingUser) => {
       currentUserDocId = querySnapshot.docs[0].id;
       setCurrentUserDocId(currentUserDocId);
     } else {
-      console.error('No matching document found for the current user.');
+      console.error('No matching documnt.');
       return;
     }
 
@@ -98,7 +98,7 @@ const handleAcceptRequest = async (requestingUser) => {
   
   const handleRejectRequest = async (requestingUser) => {
     try {
-      let currentUserDocId = null; // Initialize currentUserDocId
+      let currentUserDocId = null; 
 
     const userQuery = query(collection(db, 'users'), where('user.userId', '==', currentUser));
     const querySnapshot = await getDocs(userQuery);
@@ -108,7 +108,7 @@ const handleAcceptRequest = async (requestingUser) => {
       setCurrentUserDocId(currentUserDocId);
     } else {
       console.error('No matching document found for the current user.');
-      return; // Exit the function if no document is found for the current user
+      return; 
     }
 
       const updatedPendingRequests = pendingRequests[0].pendingFollowRequest.filter(id => id !== requestingUser);
@@ -116,7 +116,7 @@ const handleAcceptRequest = async (requestingUser) => {
       await updateDoc(userRef, { 'user.pendingFollowRequest': updatedPendingRequests });
       showToast('Request Rejected!', {
         duration: 3000,
-        position: 'top-center', // You can choose the position
+        position: 'top-center', 
         style: {
           border: '1px solid ',
           padding: '4px',

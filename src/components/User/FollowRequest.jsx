@@ -15,7 +15,7 @@ const FollowRequest = ({userId}) => {
         if (querySnapshot.docs.length > 0) {
           const userData = querySnapshot.docs[0].data().user;
           console.log('User Data:', userData);
-          setUser(userData); // Update the state with user data
+          setUser(userData); 
         } else {
           console.error(`User with ID ${userId} not found`);
         }
@@ -24,11 +24,10 @@ const FollowRequest = ({userId}) => {
       }
     };
 
-    // Call the function when the component mounts
     if (userId) {
       getUserDetailsById(userId);
     }
-  }, [userId]); // Add userId
+  }, [userId]); 
   return (
     <div className=' rounded text-xl p-2 bg-white font-bold mr-4'>{user.name}</div>
   )

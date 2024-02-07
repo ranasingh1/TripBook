@@ -18,7 +18,7 @@ const SearchUsers = () => {
   useEffect(() => {
     const timerId = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-    }, 500); // Adjust the debounce delay as needed
+    }, 500); 
 
     return () => {
       clearTimeout(timerId);
