@@ -115,7 +115,7 @@ const UserTrips = ({ userId, tripCreated }) => {
       fetchData();
       showToast('Trip Deleted', {
         duration: 3000,
-        position: 'top-center', // You can choose the position
+        position: 'top-center',
         style: {
           border: '1px solid ',
           padding: '4px',
