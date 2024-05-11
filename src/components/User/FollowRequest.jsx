@@ -29,7 +29,7 @@ const FollowRequest = ({userId}) => {
     }
   }, [userId]); 
   return (
-    <div className=' rounded text-xl p-2 bg-white font-bold mr-4'>{user.name}</div>
+    <div className='  rounded text-xl p-2 bg-white font-bold mr-4'>{user.name||'Loading...'}</div>
   )
 }
 

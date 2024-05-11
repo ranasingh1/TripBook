@@ -4,6 +4,8 @@ import { db } from '../../firebase/firebase';
 import Loader from '../Loader';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleUser } from '@fortawesome/free-solid-svg-icons';
 
 const SearchUsers = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -71,14 +73,16 @@ const SearchUsers = () => {
   };
 
   return (
-    <div className="flex max-sm:mt-24 p-8 rounded-md w-96">
-      <div className="mb-4 flex items-center h-16 ">
+    <div className={`transition-all duration-300 ${!isInputFocused ? 'w-44' : 'w-[40vw]'} flex max-sm:mt-24 rounded-md pt-2`}>
+      <div className="mb-4 flex items-center h-16 w-full">
         <input
           type="text"
           className="mt-1 p-2 flex-1 border-2 border-black rounded-md"
           placeholder="Search User"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {setSearchTerm(e.target.value)
+          setSearchResults([])
+          }}
           onBlur={handleBlur}
           onFocus={handleFocus}
         />
@@ -89,17 +93,24 @@ const SearchUsers = () => {
       {error && <p className="text-red-500">{error}</p>}
 
       {isInputFocused && (
-        <div className="mt-16 absolute w-60 bg-white rounded">
+        <div className="mt-14 absolute w-[40vw] rounded-md bg-gray-50 hover:scale-105   transition-all duration-300 transform scale-100">
           {searchResults.length > 0 && (
-            <ul>
+            <ul className="opacity-100 transition-opacity duration-300 ease-in-out transform scale-100">
               {searchResults.map((user) => (
-                <Link key={user.userId} to={`/user/${user.userId}`}>
-                  <li className="flex items-center justify-between border-b py-2">
-                    <span className="pl-6">{user.name}</span>
+                <Link key={user.userId} to={`/user/${user.userId} ` } >
+                  <li className="flex items-center justify-between border-b py-2 rounded-md mt-1">
+                    <span className="p-2 font-bold text-2xl">
+                      <FontAwesomeIcon icon={faCircleUser} className='mx-3 h-6 w-6'/>
+                      {user.name}
+                    </span>
                   </li>
                 </Link>
               ))}
             </ul>
+          )}
+
+          {searchTerm && searchResults.length === 0 && isInputFocused && (
+            <p className="opacity-100 p-2 transition-opacity duration-300 ease-in-out">No results found.</p>
           )}
         </div>
       )}

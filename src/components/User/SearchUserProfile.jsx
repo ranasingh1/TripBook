@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUserPlus, faUserMinus } from '@fortawesome/free-solid-svg-icons';
+import { formatDate } from '../../utils/helpers/formatDate';
 
 const SearchUserProfile = () => {
   const currentUser = useSelector((store) => store.auth.user);
@@ -66,6 +67,7 @@ const SearchUserProfile = () => {
   };
 
   const handleSendFollowRequest = async () => {
+    setLoading(true)
     try {
       const q = query(collection(db, 'users'), where('user.userId', '==', userId));
       const querySnapshot = await getDocs(q);
@@ -81,12 +83,15 @@ const SearchUserProfile = () => {
           });
 
           console.log('Follow request sent successfully');
+          fetchUserData()
+          setLoading(false)
         } else {
-          console.log('Follow request already sent or user is already following');
+          fetchUserData();
         }
       } else {
         console.error('User not found');
       }
+      setLoading(false)
     } catch (error) {
       console.error('Error sending follow request:', error);
     }
@@ -112,6 +117,41 @@ const SearchUserProfile = () => {
       }
     } catch (error) {
       console.error('Error unfollowing user:', error);
+    }
+  };
+
+  const cancelFollowRequest = async () => {
+    setLoading(true);
+    try {
+      const q = query(collection(db, 'users'), where('user.userId', '==', userId));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0];
+        const userData = userDoc.data().user;
+
+        const pendingFollowRequest = Array.isArray(userData.pendingFollowRequest) ? userData.pendingFollowRequest : [];
+
+        if (pendingFollowRequest.includes(currentUser.id)) {
+          const updatedRequests = pendingFollowRequest.filter(id => id !== currentUser.id);
+
+          await updateDoc(doc(db, 'users', userDoc.id), {
+            'user.pendingFollowRequest': updatedRequests,
+          });
+
+          console.log('Follow request canceled successfully');
+          fetchUserData();
+        } else {
+          console.log('No pending follow request found');
+          fetchUserData();
+        }
+      } else {
+        console.error('User not found');
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error('Error canceling follow request:', error);
+      setLoading(false);
     }
   };
 
@@ -147,70 +187,61 @@ const SearchUserProfile = () => {
   }
 
   return (
-    <div className="mx-auto max-w-2xl  bg-white rounded p-8 mt-10 ">
-      <h2 className="text-3xl font-semibold mb-4">{userData?.name} </h2>
-      <div className="flex items-center mb-4">
-        <p className="mr-4">Followers: {userData?.followers?.length || 0}</p>
-        <p>Following: {userData?.following?.length || 0}</p>
+    <div className="container mx-auto max-w-2xl bg-white rounded p-8 mt-10 shadow-lg">
+      <h2 className="text-3xl font-semibold mb-4">{userData?.name}</h2>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-gray-600">Followers: {userData?.followers?.length || 0}</p>
+        <p className="text-gray-600">Following: {userData?.following?.length || 0}</p>
       </div>
 
-      {userData && (
-        <div className="mb-4">
-          {(!userData.acceptedFollowRequest?.includes(currentUser.id) && !userData.followers?.includes(currentUser.id)) && (
-            <button
-              onClick={handleSendFollowRequest}
-              className="bg-blue-500 text-white px-4 py-2 rounded-md"
-            >
-              <FontAwesomeIcon icon={faUserPlus} className="mr-2" />
-              Send Follow Request
-            </button>
-          )}
+      <div className="mb-4 flex items-center">
+        {!userData.acceptedFollowRequest?.includes(currentUser.id) && !userData.followers?.includes(currentUser.id) && (
+          <button
+            onClick={handleSendFollowRequest}
+            className={`bg-blue-500 text-white px-4 py-2 rounded-md mr-2 transition duration-300 ease-in-out hover:bg-blue-600`}
+          >
+            <FontAwesomeIcon icon={faUserPlus} className="mr-2" />
+            {userData.pendingFollowRequest.includes(currentUser.id) ? "Follow Request Sent" : "Send Follow Request"}
+          </button>
+        )}
 
-          {userData.followers?.includes(currentUser.id) && (
-            <button
-              onClick={handleUnfollow}
-              className="bg-red-500 text-white px-4 py-2 rounded-md ml-4"
-            >
-              <FontAwesomeIcon icon={faUserMinus} className="mr-2" />
-              Unfollow
-            </button>
-          )}
-        </div>
-      )}
+        {userData.pendingFollowRequest?.includes(currentUser.id) && (
+          <button
+            onClick={cancelFollowRequest}
+            className="bg-gray-500 text-white px-4 py-2 rounded-md mr-2 transition duration-300 ease-in-out hover:bg-gray-600"
+          >
+            Cancel Follow Request
+          </button>
+        )}
+
+        {userData.followers?.includes(currentUser.id) && (
+          <button
+            onClick={handleUnfollow}
+            className="bg-red-500 text-white px-4 py-2 rounded-md mr-2 transition duration-300 ease-in-out hover:bg-red-600"
+          >
+            <FontAwesomeIcon icon={faUserMinus} className="mr-2" />
+            Unfollow
+          </button>
+        )}
+      </div>
 
       {userTrips && (
         <div>
+          <h4 className="text-2xl font-semibold mt-2 mb-3 text-center ">Trips</h4>
+
           {userTrips
-            .filter((trip) => trip.isPublic || (userData && userData.followers?.includes(currentUser.id)))
             .map((trip) => (
-              <div key={trip.id} className="border p-4 rounded-md shadow-md mb-4">
-                {trip.isPublic || trip.joinedUsers.includes(currentUser.id) ? (
+              <div key={trip.id} className="border p-4 rounded-md hover:bg-slate-100 shadow-md mb-4">
+                {(
                   <div>
-                    <h4 className="text-lg font-semibold mt-2 mb-1">Activities</h4>
                     {trip.activities.map((activity, index) => (
-                      <div key={index} className="mb-2">
-                        <p className="font-semibold">{activity.title}</p>
-                        <p>Date: {activity.date}</p>
+                      <div key={index} className="mb-2 mt-4 p-2   rounded">
+                        <p className="font-semibold text-center">{activity.title}</p>
+                        <p>Date: {formatDate(activity.date)}</p>
                         <p>Description: {activity.description}</p>
                         <p>Location: {activity.location}</p>
                       </div>
                     ))}
-                  </div>
-                ) : (
-                  <div>
-                    <p>This is a private trip</p>
-                    <p>{trip.name}</p>
-                    {userData?.followers?.includes(currentUser.id) && (
-                      <button
-                        onClick={() => handleJoinRequest(trip.id)}
-                        className={`bg-green-500 text-white px-4 py-2 rounded-md mt-2 ${
-                          trip.joinRequests?.includes(currentUser.id) ? 'opacity-50 cursor-not-allowed' : ''
-                        }`}
-                        disabled={trip.joinRequests?.includes(currentUser.id)}
-                      >
-                        {trip.joinRequests?.includes(currentUser.id) ? 'Requested' : 'Request to Join'}
-                      </button>
-                    )}
                   </div>
                 )}
               </div>
@@ -219,5 +250,6 @@ const SearchUserProfile = () => {
       )}
     </div>
   );
-                      }
+}
+
 export default SearchUserProfile;

@@ -21,7 +21,7 @@ const SignIn = () => {
   console.log(isAuthenticated);
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/profile');
+      navigate('/');
     }
   }, [isAuthenticated, navigate]);
 
@@ -70,7 +70,7 @@ const SignIn = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
+    <div className="bg-gradient-to-r from-purple-200 via-pink-200 to-red-100 flex flex-col items-center justify-center h-screen">
         <Logo/>
       {loading && <Loader />} 
       <div className="bg-white p-8 shadow-md rounded-md w-96">
